@@ -30,91 +30,117 @@ fn main() {
     let mut framebuffer = Framebuffer::new(framebuffer_width, framebuffer_height);
 
     let mut window = Window::new(
-        "House Diorama Scene",
+        "Labyrinth Scene",
         window_width,
         window_height,
         WindowOptions::default(),
     ).unwrap();
 
-    // Implementar un Skybox
-    let skybox_color_day = Color::new(135, 206, 235); // Color cielo claro
-    let skybox_color_night = Color::new(0, 0, 40); // Color cielo noche
+    let skybox_color_day = Color::new(135, 206, 235);
     let mut skybox_color = skybox_color_day.clone();
 
-    // Cargar texturas
     let brick_texture = Rc::new(Texture::new("assets/brick_texture.jpg"));
     let wood_texture = Rc::new(Texture::new("assets/wood_texture.jpg"));
-    let emissive_texture = Rc::new(Texture::new("assets/emissive_texture.jpg")); // Emissive texture
+    let emissive_texture = Rc::new(Texture::new("assets/emissive_texture.jpg"));
 
-    // Crear objetos de la escena
     let floor = Cube::new(
-        Vec3::new(-10.0, -1.0, -10.0),
-        Vec3::new(10.0, 0.0, 10.0),
+        Vec3::new(-20.0, -1.0, -20.0),
+        Vec3::new(20.0, 0.0, 20.0),
         wood_texture.clone(),
         wood_texture.clone(),
         wood_texture.clone(),
     );
 
-    // Crear las paredes de ladrillo
     let wall1 = Cube::new(
-        Vec3::new(-10.0, 0.0, -10.0),
-        Vec3::new(10.0, 5.0, -9.0),
+        Vec3::new(-20.0, 0.0, -20.0),
+        Vec3::new(-19.5, 5.0, 20.0),
         brick_texture.clone(),
         brick_texture.clone(),
         brick_texture.clone(),
     );
 
     let wall2 = Cube::new(
-        Vec3::new(-10.0, 0.0, 9.0),
-        Vec3::new(10.0, 5.0, 10.0),
+        Vec3::new(19.5, 0.0, -20.0),
+        Vec3::new(20.0, 5.0, 20.0),
         brick_texture.clone(),
         brick_texture.clone(),
         brick_texture.clone(),
     );
 
     let wall3 = Cube::new(
-        Vec3::new(-10.0, 0.0, -10.0),
-        Vec3::new(-9.0, 5.0, 10.0),
+        Vec3::new(-20.0, 0.0, -20.0),
+        Vec3::new(20.0, 5.0, -19.5),
         brick_texture.clone(),
         brick_texture.clone(),
         brick_texture.clone(),
     );
 
     let wall4 = Cube::new(
-        Vec3::new(9.0, 0.0, -10.0),
-        Vec3::new(10.0, 5.0, 10.0),
+        Vec3::new(-20.0, 0.0, 19.5),
+        Vec3::new(20.0, 5.0, 20.0),
         brick_texture.clone(),
         brick_texture.clone(),
         brick_texture.clone(),
     );
 
-    // Crear un cubo emisivo en el centro
+    let internal_wall1 = Cube::new(
+        Vec3::new(-10.0, 0.0, -10.0),
+        Vec3::new(-9.5, 5.0, 10.0),
+        brick_texture.clone(),
+        brick_texture.clone(),
+        brick_texture.clone(),
+    );
+
+    let internal_wall2 = Cube::new(
+        Vec3::new(0.0, 0.0, -10.0),
+        Vec3::new(0.5, 5.0, 10.0),
+        brick_texture.clone(),
+        brick_texture.clone(),
+        brick_texture.clone(),
+    );
+
+    let internal_wall3 = Cube::new(
+        Vec3::new(-10.0, 0.0, -10.5),
+        Vec3::new(10.0, 5.0, -10.0),
+        brick_texture.clone(),
+        brick_texture.clone(),
+        brick_texture.clone(),
+    );
+
+    let internal_wall4 = Cube::new(
+        Vec3::new(-10.0, 0.0, 10.0),
+        Vec3::new(10.0, 5.0, 9.5),
+        brick_texture.clone(),
+        brick_texture.clone(),
+        brick_texture.clone(),
+    );
+
+    let internal_wall5 = Cube::new(
+        Vec3::new(-5.0, 0.0, 0.0),
+        Vec3::new(-4.5, 5.0, 10.0),
+        brick_texture.clone(),
+        brick_texture.clone(),
+        brick_texture.clone(),
+    );
+
     let emissive_cube = Cube::new(
-        Vec3::new(-2.0, 0.0, -2.0),
-        Vec3::new(2.0, 3.0, 2.0),
+        Vec3::new(-1.0, 0.0, -1.0),
+        Vec3::new(1.0, 2.0, 1.0),
         emissive_texture.clone(),
         emissive_texture.clone(),
         emissive_texture.clone(),
     );
 
     let mut camera = Camera::new(
-        Vec3::new(0.0, 2.0, 15.0),
-        Vec3::new(0.0, 1.0, 0.0),
+        Vec3::new(0.0, 15.0, 25.0),
+        Vec3::new(0.0, 0.0, 0.0),
         Vec3::new(0.0, 1.0, 0.0),
     );
 
-    // Luces iniciales
     let light1 = Light::new(
-        Vec3::new(0.0, 5.0, 5.0),
+        Vec3::new(0.0, 10.0, 5.0),
         [255, 255, 255],
-        1.0,
-    );
-
-    // Agregar una luz exterior
-    let light2 = Light::new(
-        Vec3::new(15.0, 10.0, 15.0),  // Posición exterior
-        [255, 200, 150],              // Color cálido para la luz exterior
-        1.5,                          // Intensidad de la luz
+        1.5,
     );
 
     let objects: Vec<Box<dyn RayIntersect>> = vec![
@@ -123,13 +149,16 @@ fn main() {
         Box::new(wall2),
         Box::new(wall3),
         Box::new(wall4),
-        Box::new(emissive_cube),  // Emissive cube
+        Box::new(internal_wall1),
+        Box::new(internal_wall2),
+        Box::new(internal_wall3),
+        Box::new(internal_wall4),
+        Box::new(internal_wall5),
+        Box::new(emissive_cube),
     ];
 
-    // Ciclo de renderizado y control del ciclo día/noche
-    let mut time_of_day = 0.0;
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        // Actualizar la cámara
+        // Movimientos de cámara
         if window.is_key_down(Key::Left) {
             camera.orbit(0.1, 0.0);
         }
@@ -147,24 +176,15 @@ fn main() {
         }
 
         if window.is_key_down(Key::W) {
-            camera.zoom(0.1);  // Acercar cámara
+            camera.zoom(0.1);
         }
 
         if window.is_key_down(Key::S) {
-            camera.zoom(-0.1);  // Alejar cámara
+            camera.zoom(-0.1);
         }
 
-        // Control del ciclo día/noche
-        time_of_day += 0.01;
-        if time_of_day > 1.0 {
-            time_of_day = 0.0;
-        }
-        skybox_color = if time_of_day < 0.5 { skybox_color_day.clone() } else { skybox_color_night.clone() };
+        render_scene(&mut framebuffer, &objects, &camera, &[light1.clone()], &skybox_color);
 
-        // Clonar las luces antes de pasarlas a render_scene
-        render_scene(&mut framebuffer, &objects, &camera, &[light1.clone(), light2.clone()], &skybox_color);
-
-        // Actualizar ventana con el framebuffer
         window.update_with_buffer(&framebuffer.buffer, framebuffer_width, framebuffer_height).unwrap();
 
         std::thread::sleep(frame_delay);
@@ -181,7 +201,7 @@ fn render_scene(
     let width = framebuffer.width as f32;
     let height = framebuffer.height as f32;
     let aspect_ratio = width / height;
-    let fov = std::f32::consts::PI / 3.0;  // Cambié "." a "::" aquí
+    let fov = std::f32::consts::PI / 3.0;
     let perspective_scale = (fov * 0.5).tan();
 
     for y in 0..framebuffer.height {
@@ -228,7 +248,6 @@ fn cast_ray(
             let light_dir = (light.position - intersection.point).normalize();
             let intensity = light_dir.dot(&intersection.normal).max(0.0);
 
-            // Obtener el color de la textura usando las coordenadas UV
             let texture_color = intersection.material.get_texture_color(
                 intersection.u.unwrap_or(0.0),
                 intersection.v.unwrap_or(0.0),
@@ -236,13 +255,11 @@ fn cast_ray(
 
             let base_color = Color::new(texture_color[0], texture_color[1], texture_color[2]);
 
-            // Calcular el color final con iluminación
             final_color = final_color + (base_color * intensity);
         }
 
         return final_color;
     }
 
-    // Si no hay intersección, devolver el color del skybox
     skybox_color.clone()
 }
